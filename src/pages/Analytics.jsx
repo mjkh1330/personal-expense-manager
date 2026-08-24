@@ -7,9 +7,12 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as BarTooltip, Legend as BarLegend
 } from 'recharts';
 
+const BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
+
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
-// ۱. تابع برای وسط‌چین کردن درصدهای نمودار دایره‌ای (دقیقاً مثل داشبورد)
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -28,7 +31,6 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   );
 };
 
-// ۲. تابع برای خلاصه‌سازی اعداد بزرگ در محور Y نمودار ستونی
 const formatYAxis = (value) => {
   if (value === 0) return '0';
   if (value >= 1000000000) return (value / 1000000000).toFixed(1) + ' میلیارد';
@@ -46,7 +48,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/analytics', {
+        const response = await axios.get(`${BASE_URL}/transactions/analytics`, {
           withCredentials: true
         });
 
@@ -91,7 +93,6 @@ const Analytics = () => {
     }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         
-        {/* هدر صفحه */}
         <header style={{ 
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
           backgroundColor: colors.cardBg, padding: '1.5rem 2rem', borderRadius: '20px', 
@@ -121,10 +122,8 @@ const Analytics = () => {
           </Link>
         </header>
 
-        {/* بخش نمودارها */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2rem' }}>
           
-          {/* کارت نمودار دایره‌ای */}
           <div style={{ 
             backgroundColor: colors.cardBg, padding: '2rem', borderRadius: '20px', 
             border: `1px solid ${colors.cardBorder}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' 
@@ -145,8 +144,8 @@ const Analytics = () => {
                     cy="50%" 
                     outerRadius={120} 
                     dataKey="value" 
-                    labelLine={false} // غیرفعال کردن خطوط مزاحم
-                    label={renderCustomizedLabel} // استفاده از لیبل درصدی تمیز
+                    labelLine={false}
+                    label={renderCustomizedLabel}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke={colors.cardBg} strokeWidth={2} />
@@ -162,7 +161,6 @@ const Analytics = () => {
             )}
           </div>
 
-          {/* کارت نمودار ستونی */}
           <div style={{ 
             backgroundColor: colors.cardBg, padding: '2rem', borderRadius: '20px', 
             border: `1px solid ${colors.cardBorder}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' 
@@ -179,7 +177,6 @@ const Analytics = () => {
                 <BarChart data={barData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#334155' : '#e2e8f0'} vertical={false} />
                   <XAxis dataKey="name" stroke={colors.textMuted} fontSize={12} tickMargin={10} />
-                  {/* افزایش عرض YAxis برای جا شدن اعداد و استفاده از تابع خلاصه‌ساز */}
                   <YAxis width={80} stroke={colors.textMuted} fontSize={12} tickFormatter={formatYAxis} />
                   <BarTooltip 
                     formatter={(value) => `${value.toLocaleString()} تومان`} 

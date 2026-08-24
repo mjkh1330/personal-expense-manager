@@ -6,6 +6,10 @@ import NotificationBell from '../components/NotificationBell';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+const BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
+
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -66,7 +70,7 @@ const Dashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions', { withCredentials: true });
+      const response = await axios.get(`${BASE_URL}/transactions`, { withCredentials: true });
       setTransactions(response.data.data);
     } catch (error) {
       console.error('خطا در دریافت اطلاعات مالی:', error);
@@ -75,7 +79,7 @@ const Dashboard = () => {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/accounts', { withCredentials: true });
+      const response = await axios.get(`${BASE_URL}/accounts`, { withCredentials: true });
       const accs = response.data.data || [];
       setAccounts(accs);
       if (accs.length > 0) {
@@ -88,7 +92,7 @@ const Dashboard = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories', { withCredentials: true });
+      const response = await axios.get(`${BASE_URL}/categories`, { withCredentials: true });
       if (response.data.success) {
         setDbCategories(response.data.data);
       }
@@ -130,11 +134,11 @@ const Dashboard = () => {
 
     try {
       if (editId) {
-        const response = await axios.put(`http://localhost:5000/api/transactions/${editId}`, submitData, { withCredentials: true });
+        const response = await axios.put(`${BASE_URL}/transactions/${editId}`, submitData, { withCredentials: true });
         setTransactions(transactions.map(tx => tx._id === editId ? response.data.data : tx));
         setEditId(null);
       } else {
-        const response = await axios.post('http://localhost:5000/api/transactions', submitData, { withCredentials: true });
+        const response = await axios.post(`${BASE_URL}/transactions`, submitData, { withCredentials: true });
         setTransactions([response.data.data, ...transactions]);
       }
       setFormData({ title: '', amount: '', type: 'expense', category: 'خوراک و سوپرمارکت 🍔', accountId: accounts[0]?._id || '' });
@@ -192,7 +196,7 @@ const Dashboard = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/transactions/${id}`, { withCredentials: true });
+      await axios.delete(`${BASE_URL}/transactions/${id}`, { withCredentials: true });
       setTransactions(transactions.filter((tx) => tx._id !== id));
       fetchAccounts(); 
     } catch (error) {
@@ -299,7 +303,6 @@ const Dashboard = () => {
     }}>
       <div style={{ maxWidth: '1050px', margin: '0 auto' }}>
         
-        {/* هدر سایت با افکت مدرن */}
         <header style={{ 
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
           backgroundColor: colors.cardBg, padding: '1.75rem 2.25rem', borderRadius: '24px',
@@ -449,7 +452,6 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* کارت‌های آماری مدرن با گرادیان‌های جذاب */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.75rem', marginBottom: '2.5rem' }}>
           <div style={{ padding: '2rem', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: '24px', color: 'white', boxShadow: '0 12px 25px rgba(59, 130, 246, 0.3)', transition: 'transform 0.2s' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -482,7 +484,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* بخش نمودار تحلیل */}
         {processedTransactions.length > 0 && (totalIncome > 0 || totalExpense > 0) && (
           <div style={{ background: colors.cardBg, borderRadius: '24px', border: `1px solid ${colors.cardBorder}`, padding: '2.25rem', marginBottom: '2.5rem', textAlign: 'center', boxShadow: '0 8px 20px -5px rgba(0, 0, 0, 0.04)' }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.75rem', fontSize: '1.25rem', color: colors.textMain, fontWeight: '800' }}>📊 تحلیل نسبت درآمد و هزینه</h3>
@@ -494,7 +495,6 @@ const Dashboard = () => {
 
         <main style={{ display: 'grid', gap: '2.5rem' }}>
           
-          {/* فرم ثبت یا ویرایش تراکنش */}
           <div style={{ padding: '2.25rem', background: editId ? (isDarkMode ? '#3f3f46' : '#fffbeb') : colors.cardBg, borderRadius: '24px', border: `1px solid ${editId ? '#fcd34d' : colors.cardBorder}`, boxShadow: '0 8px 20px -5px rgba(0, 0, 0, 0.04)', transition: 'all 0.3s' }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.75rem', color: editId ? '#f59e0b' : colors.textMain, fontSize: '1.25rem', fontWeight: '800' }}>
               {editId ? '✏️ ویرایش تراکنش انتخابی' : '➕ افزودن تراکنش جدید'}
@@ -557,7 +557,6 @@ const Dashboard = () => {
             </form>
           </div>
 
-          {/* بخش تاریخچه تراکنش‌ها و ابزارهای فیلتر */}
           <div style={{ padding: '2.25rem', background: colors.cardBg, borderRadius: '24px', border: `1px solid ${colors.cardBorder}`, boxShadow: '0 8px 20px -5px rgba(0, 0, 0, 0.04)' }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.75rem', fontSize: '1.25rem', color: colors.textMain, fontWeight: '800' }}>📋 تاریخچه تراکنش‌ها</h3>
             

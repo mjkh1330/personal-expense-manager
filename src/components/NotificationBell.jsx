@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
+
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -9,9 +13,7 @@ const NotificationBell = () => {
 
     const fetchNotifications = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/notifications', {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await axios.get(`${BASE_URL}/notifications`, {
                 withCredentials: true
             });
             if (response.data.success) {
@@ -54,36 +56,28 @@ const NotificationBell = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // خواندن یک پیام تکی: اول کمرنگ میشه، بعد از ۲۰ ثانیه کلاً پاک میشه
     const handleMarkAsRead = async (id, e) => {
         if (e) e.stopPropagation();
         try {
-            const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:5000/api/notifications/${id}/read`, {}, {
-                headers: { Authorization: `Bearer ${token}` },
+            await axios.patch(`${BASE_URL}/notifications/${id}/read`, {}, {
                 withCredentials: true
             });
             
-            // ۱. بلافاصله کمرنگ میشه و از شمارنده کم میشه
             setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
             setUnreadCount(prev => Math.max(0, prev - 1));
 
-            // ۲. بعد از ۲۰ ثانیه ماندگاری، پیام تکی از لیست حذف میشه
             setTimeout(() => {
                 setNotifications(prev => prev.filter(n => n._id !== id));
-            }, 20000); // ۲۰ ثانیه
+            }, 20000);
 
         } catch (error) {
             console.error('خطا:', error);
         }
     };
 
-    // خواندن همه
     const handleMarkAllAsRead = async () => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.patch('http://localhost:5000/api/notifications/read-all', {}, {
-                headers: { Authorization: `Bearer ${token}` },
+            await axios.patch(`${BASE_URL}/notifications/read-all`, {}, {
                 withCredentials: true
             });
             

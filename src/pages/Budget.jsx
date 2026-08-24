@@ -3,6 +3,10 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
+const BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
+
 const Budget = () => {
   const { colors, isDarkMode } = useTheme();
   
@@ -32,7 +36,7 @@ const Budget = () => {
   const fetchBudgets = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:5000/api/budgets/status?month=${currentMonth}&year=${currentYear}`,
+        `${BASE_URL}/budgets/status?month=${currentMonth}&year=${currentYear}`,
         { withCredentials: true } 
       );
       setBudgets(data.data);
@@ -66,7 +70,7 @@ const Budget = () => {
     
     try {
       await axios.post(
-        'http://localhost:5000/api/budgets',
+        `${BASE_URL}/budgets`,
         { 
           category: finalCategory || 'سایر', 
           amount: Number(budgetForm.amount), 
@@ -85,7 +89,6 @@ const Budget = () => {
     }
   };
 
-  // دکمه ویرایش: اطلاعات کارت رو میاره تو فرم بالا
   const handleEditClick = (item) => {
     const isDefault = defaultCategories.includes(item.category);
     if (isDefault) {
@@ -99,11 +102,10 @@ const Budget = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // دکمه حذف بودجه
   const handleDelete = async (id) => {
     if (!window.confirm('آیا از حذف این سقف بودجه مطمئن هستید؟')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/budgets/${id}`, { withCredentials: true });
+      await axios.delete(`${BASE_URL}/budgets/${id}`, { withCredentials: true });
       fetchBudgets();
     } catch (error) {
       console.error('خطا در حذف بودجه:', error);
@@ -129,7 +131,6 @@ const Budget = () => {
     }}>
       <div style={{ maxWidth: '950px', margin: '0 auto' }}>
         
-        {/* هدر صفحه بودجه */}
         <header style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
@@ -186,7 +187,6 @@ const Budget = () => {
 
         <main style={{ display: 'grid', gap: '2rem' }}>
           
-          {/* بخش فرم ثبت بودجه */}
           <div style={{ 
             padding: '2rem', 
             background: colors.cardBg, 
@@ -264,7 +264,6 @@ const Budget = () => {
             </form>
           </div>
 
-          {/* بخش نمایش وضعیت بودجه‌ها */}
           <div style={{ 
             padding: '2rem', 
             background: colors.cardBg, 
@@ -306,7 +305,6 @@ const Budget = () => {
                       </div>
                     </div>
                     
-                    {/* نوار پیشرفت */}
                     <div style={{ 
                       width: '100%', 
                       height: '14px', 

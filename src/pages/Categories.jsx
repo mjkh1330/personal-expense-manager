@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:5000/api';
+
 const Categories = () => {
   const { colors, isDarkMode } = useTheme();
 
@@ -18,7 +22,7 @@ const Categories = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories', {
+      const response = await axios.get(`${BASE_URL}/categories`, {
         withCredentials: true,
       });
       if (response.data.success) {
@@ -34,7 +38,7 @@ const Categories = () => {
     setError('');
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/categories',
+        `${BASE_URL}/categories`,
         { name, type, color },
         { withCredentials: true }
       );
@@ -51,7 +55,7 @@ const Categories = () => {
   const handleDeleteCategory = async (id) => {
     if (!window.confirm('آیا از حذف این دسته‌بندی مطمئن هستید؟')) return;
     try {
-      const response = await axios.delete(`http://localhost:5000/api/categories/${id}`, {
+      const response = await axios.delete(`${BASE_URL}/categories/${id}`, {
         withCredentials: true,
       });
       if (response.data.success) {
@@ -70,7 +74,6 @@ const Categories = () => {
     }}>
       <div style={{ maxWidth: '750px', margin: '0 auto' }}>
         
-        {/* هدر صفحه و دکمه بازگشت */}
         <div style={{ 
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
           backgroundColor: colors.cardBg, padding: '1.5rem 2rem', borderRadius: '20px',
@@ -94,7 +97,6 @@ const Categories = () => {
           </Link>
         </div>
 
-        {/* خطا اگر وجود داشت */}
         {error && (
           <div style={{ 
             padding: '12px 16px', backgroundColor: '#fef2f2', color: '#dc2626', 
@@ -104,7 +106,6 @@ const Categories = () => {
           </div>
         )}
 
-        {/* فرم ایجاد دسته‌بندی جدید */}
         <div style={{ 
           background: colors.cardBg, padding: '2rem', borderRadius: '20px', 
           border: `1px solid ${colors.cardBorder}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
@@ -166,7 +167,6 @@ const Categories = () => {
           </form>
         </div>
 
-        {/* لیست دسته‌بندی‌های موجود */}
         <div style={{ 
           background: colors.cardBg, padding: '2rem', borderRadius: '20px', 
           border: `1px solid ${colors.cardBorder}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' 
