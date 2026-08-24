@@ -13,8 +13,8 @@ const sendTokenResponse = (user, statusCode, res) => {
   const options = {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true, // برای ارسال امن روی پروتکل HTTPS در Render
+    sameSite: 'none', // برای اینکه مرورگر اجازه ارسال کوکی بین Netlify و Render را بدهد
   };
 
   res
@@ -100,6 +100,8 @@ exports.logout = async (req, res) => {
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 5 * 1000),
     httpOnly: true,
+    secure: true,
+    sameSite: 'none',
   });
 
   res.status(200).json({ success: true, message: 'خروج با موفقیت انجام شد.' });
